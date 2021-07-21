@@ -980,7 +980,7 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
     NVGcolor val_color = COLOR_WHITE_ALPHA(200);
     if (scene->controls_state.getEnabled()) {
       if (s->scene.cruise_gap == s->scene.dynamic_tr_mode) {
-        snprintf(val_str, sizeof(val_str), "AUTO");
+        snprintf(val_str, sizeof(val_str), "AUT");
       } else {
         snprintf(val_str, sizeof(val_str), "%d",(s->scene.cruise_gap));
       }
