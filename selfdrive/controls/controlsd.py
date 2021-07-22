@@ -184,6 +184,7 @@ class Controls:
     self.hyundai_lkas = self.read_only  #read_only
     
     self.mpc_frame = 0
+    self.mpc_frame_sr = 0
 
     self.steerRatio_Max = float(Decimal(params.get("SteerRatioMaxAdj", encoding="utf8")) * Decimal('0.1'))
     self.steer_angle_range = [5, 30]
@@ -502,9 +503,11 @@ class Controls:
     output_scale = lat_plan.outputScale
     if not self.live_sr:
       if abs(output_scale) >= self.CP.steerMaxV[0] and CS.vEgo > 8 and not CS.steeringPressed:
-        self.new_steerRatio_prev = interp(CS.steeringAngleDeg, self.steer_angle_range, self.steerRatio_range)
-        if self.new_steerRatio_prev > self.new_steerRatio:
-          self.new_steerRatio = self.new_steerRatio_prev
+        self.mpc_frame_sr += 1
+        if self.mpc_frame_sr > 20:
+          self.new_steerRatio_prev = interp(CS.steeringAngleDeg, self.steer_angle_range, self.steerRatio_range)
+          if self.new_steerRatio_prev > self.new_steerRatio:
+            self.new_steerRatio = self.new_steerRatio_prev
       else:
         self.mpc_frame += 1
         if self.mpc_frame % 100 == 0:
@@ -512,6 +515,7 @@ class Controls:
           if self.new_steerRatio <= self.CP.steerRatio:
             self.new_steerRatio = self.CP.steerRatio
           self.mpc_frame = 0
+          self.mpc_frame_sr = 0
 
     # Update VehicleModel
     params = self.sm['liveParameters']
