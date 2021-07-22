@@ -105,8 +105,8 @@ typedef struct UIScene {
   cereal::PandaState::PandaType pandaType;
 
   bool brakePress;
-  bool recording;
-  bool touched;
+  bool recording = false;
+  bool touched = false;
   bool map_on_top;
   bool map_on_overlay;
 
@@ -152,8 +152,8 @@ typedef struct UIScene {
   float steerMax_V;
   int speed_lim_off;
   bool monitoring_mode;
-  int setbtn_count;
-  int homebtn_count;
+  int setbtn_count = 0;
+  int homebtn_count = 0;
   bool forceGearD;
   bool comma_stock_ui;
   bool map_is_running;

@@ -163,7 +163,7 @@ def thermald_thread():
   network_info = None
   modem_version = None
   registered_count = 0
-  wifiIpAddress = 'N/A'
+  wifiIpAddress = "N/A"
 
   current_filter = FirstOrderFilter(0., CURRENT_TAU, DT_TRML)
   cpu_temp_filter = FirstOrderFilter(0., CPU_TEMP_TAU, DT_TRML)
@@ -472,22 +472,23 @@ def thermald_thread():
          started_seen and opkrAutoShutdown and (sec_since_boot() - off_ts) > opkrAutoShutdown and not os.path.isfile(pandaflash_ongoing):
         os.system('LD_LIBRARY_PATH="" svc power shutdown')
 
-      if int(params.get("OpkrForceShutdown", encoding="utf8")) != 0 and not started_seen and msg.deviceState.batteryStatus == "Discharging":
-        shutdown_option = int(params.get("OpkrForceShutdown", encoding="utf8"))
-        if shutdown_option == 1:
-          opkrForceShutdown = 60
-        elif shutdown_option == 2:
-          opkrForceShutdown = 180
-        elif shutdown_option == 3:
-          opkrForceShutdown = 300
-        elif shutdown_option == 4:
-          opkrForceShutdown = 600
-        else:
-          opkrForceShutdown = 1800
-        if (sec_since_boot() - off_ts) > opkrForceShutdown and params.get_bool("OpkrForceShutdownTrigger"):
-          os.system('LD_LIBRARY_PATH="" svc power shutdown')
-        elif not params.get_bool("OpkrForceShutdownTrigger"):
-          off_ts = sec_since_boot()
+      if (count % int(1. / DT_TRML)) == 0:
+        if int(params.get("OpkrForceShutdown", encoding="utf8")) != 0 and not started_seen and msg.deviceState.batteryStatus == "Discharging":
+          shutdown_option = int(params.get("OpkrForceShutdown", encoding="utf8"))
+          if shutdown_option == 1:
+            opkrForceShutdown = 60
+          elif shutdown_option == 2:
+            opkrForceShutdown = 180
+          elif shutdown_option == 3:
+            opkrForceShutdown = 300
+          elif shutdown_option == 4:
+            opkrForceShutdown = 600
+          else:
+            opkrForceShutdown = 1800
+          if (sec_since_boot() - off_ts) > opkrForceShutdown and params.get_bool("OpkrForceShutdownTrigger"):
+            os.system('LD_LIBRARY_PATH="" svc power shutdown')
+          elif not params.get_bool("OpkrForceShutdownTrigger"):
+            off_ts = sec_since_boot()
 
 
     # opkr

@@ -736,6 +736,12 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
     char uom_str[6];
     std::string cpu_temp_val = std::to_string(int(s->scene.cpuTemp)) + "°C";
     NVGcolor val_color = COLOR_WHITE_ALPHA(200);
+    if(s->scene.cpuTemp > 75) {
+      val_color = nvgRGBA(255, 188, 3, 200);
+    }
+    if(s->scene.cpuTemp > 85) {
+      val_color = nvgRGBA(255, 0, 0, 200);
+    }
     //snprintf(val_str, sizeof(val_str), "%.0fC", (round(s->scene.cpuTemp)));
     snprintf(uom_str, sizeof(uom_str), "%d%%", (s->scene.cpuPerc));
     bb_h +=bb_ui_draw_measure(s, cpu_temp_val.c_str(), uom_str, "CPU 온도",
@@ -748,13 +754,12 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
   if (s->scene.batt_less) {
     //char val_str[16];
     char uom_str[6];
+    std::string device_temp_val = std::to_string(int(s->scene.ambientTemp)) + "°C";
     NVGcolor val_color = COLOR_WHITE_ALPHA(200);
-    float deviceTemp = scene->deviceState.getAmbientTempC();
-    std::string device_temp_val = std::to_string(int(deviceTemp)) + "°C";
-    if(deviceTemp > 45.f) {
+    if(s->scene.ambientTemp > 45) {
       val_color = nvgRGBA(255, 188, 3, 200);
     }
-    if(deviceTemp > 50.f) {
+    if(s->scene.ambientTemp > 50) {
       val_color = nvgRGBA(255, 0, 0, 200);
     }
     // temp is alway in C * 1000
@@ -770,13 +775,12 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
   if (!s->scene.batt_less) {
     //char val_str[16];
     char uom_str[6];
+    std::string bat_temp_val = std::to_string(int(s->scene.batTemp)) + "°C";
     NVGcolor val_color = COLOR_WHITE_ALPHA(200);
-    float batteryTemp = scene->deviceState.getBatteryTempC();
-    std::string bat_temp_val = std::to_string(int(batteryTemp)) + "°C";
-    if(batteryTemp > 40.f) {
+    if(s->scene.batTemp > 40) {
       val_color = nvgRGBA(255, 188, 3, 200);
     }
-    if(batteryTemp > 50.f) {
+    if(s->scene.batTemp > 50) {
       val_color = nvgRGBA(255, 0, 0, 200);
     }
     // temp is alway in C * 1000
@@ -790,13 +794,12 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
   }
   //BAT LEVEL
   if(!s->scene.batt_less) {
-    char val_str[16];
+    //char val_str[16];
     char uom_str[6];
+    std::string bat_level_val = std::to_string(int(s->scene.batPercent)) + "%";
     NVGcolor val_color = COLOR_WHITE_ALPHA(200);
-    int batteryPercent = scene->deviceState.getBatteryPercent();
-    snprintf(val_str, sizeof(val_str), "%d%%", batteryPercent);
     snprintf(uom_str, sizeof(uom_str), "%s", scene->deviceState.getBatteryStatus() == "Charging" ? "++" : "--");
-    bb_h +=bb_ui_draw_measure(s, val_str, uom_str, "배터리레벨",
+    bb_h +=bb_ui_draw_measure(s, bat_level_val.c_str(), uom_str, "배터리레벨",
         bb_rx, bb_ry, bb_uom_dx,
         val_color, lab_color, uom_color,
         value_fontSize, label_fontSize, uom_fontSize );

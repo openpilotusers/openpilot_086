@@ -54,10 +54,6 @@ static void ui_init_vision(UIState *s) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
   }
   assert(glGetError() == GL_NO_ERROR);
-  s->scene.recording = false;
-  s->scene.touched = false;
-  s->scene.setbtn_count = 0;
-  s->scene.homebtn_count = 0;
 }
 
 static int get_path_length_idx(const cereal::ModelDataV2::XYZTData::Reader &line, const float path_height) {
@@ -229,8 +225,11 @@ static void update_state(UIState *s) {
   if (sm.updated("deviceState")) {
     scene.deviceState = sm["deviceState"].getDeviceState();
     s->scene.cpuPerc = scene.deviceState.getCpuUsagePercent();
-    s->scene.cpuTemp = scene.deviceState.getCpuTempC()[0];
+    s->scene.cpuTemp = (scene.deviceState.getCpuTempC()[0] + scene.deviceState.getCpuTempC()[1] + scene.deviceState.getCpuTempC()[2] + scene.deviceState.getCpuTempC()[3])/4;
+    s->scene.batTemp = scene.deviceState.getBatteryTempC();
+    s->scene.ambientTemp = scene.deviceState.getAmbientTempC();
     s->scene.fanSpeed = scene.deviceState.getFanSpeedPercentDesired();
+    s->scene.batPercent = scene.deviceState.getBatteryPercent();
   }
   if (sm.updated("pandaState")) {
     auto pandaState = sm["pandaState"].getPandaState();
@@ -325,14 +324,12 @@ static void update_state(UIState *s) {
 static void update_params(UIState *s) {
   const uint64_t frame = s->sm->frame;
   UIScene &scene = s->scene;
-  if (frame % (10*UI_FREQ) == 0) {
+  if (frame % (5*UI_FREQ) == 0) {
     scene.is_metric = Params().getBool("IsMetric");
     scene.is_OpenpilotViewEnabled = Params().getBool("IsOpenpilotViewEnabled");
-    scene.driving_record = Params().getBool("OpkrDrivingRecord");
-    scene.end_to_end = Params().getBool("EndToEndToggle");
   }
   //opkr navi on boot
-  if (!scene.navi_on_boot && (frame - scene.started_frame > 2*UI_FREQ)) {
+  if (!scene.navi_on_boot && (frame - scene.started_frame > 3*UI_FREQ)) {
     if (Params().getBool("OpkrRunNaviOnBoot") && Params().getBool("ControlsReady") && (Params().get("CarParams").size() > 0)) {
       scene.navi_on_boot = true;
       scene.map_is_running = true;
@@ -344,7 +341,7 @@ static void update_params(UIState *s) {
       scene.navi_on_boot = true;
     }
   }
-  if (!scene.move_to_background && (frame - scene.started_frame > 7*UI_FREQ)) {
+  if (!scene.move_to_background && (frame - scene.started_frame > 8*UI_FREQ)) {
     if (Params().getBool("OpkrRunNaviOnBoot") && Params().getBool("OpkrMapEnable") && Params().getBool("ControlsReady") && (Params().get("CarParams").size() > 0)) {
       scene.move_to_background = true;
       scene.map_on_top = false;
@@ -406,6 +403,8 @@ static void update_status(UIState *s) {
       } else {
         s->vipc_client = s->vipc_client_rear;
       }
+      s->scene.end_to_end = Params().getBool("EndToEndToggle");
+      s->scene.driving_record = Params().getBool("OpkrDrivingRecord");
       s->nDebugUi1 = Params().getBool("DebugUi1");
       s->nDebugUi2 = Params().getBool("DebugUi2");
       s->scene.forceGearD = Params().getBool("JustDoGearD");
@@ -422,8 +421,7 @@ static void update_status(UIState *s) {
       s->scene.comma_stock_ui = Params().getBool("CommaStockUI");
       s->scene.apks_enabled = Params().getBool("OpkrApksEnable");
       s->scene.batt_less = Params().getBool("OpkrBattLess");
-      Params().put("OpkrSpeedBump", "0", 1);
-      Params().put("OpkrMapEnable", "0", 1);
+
       //opkr navi on boot
       s->scene.map_on_top = false;
       s->scene.map_on_overlay = false;
@@ -468,8 +466,8 @@ void QUIState::update() {
   update_sockets(&ui_state);
   update_state(&ui_state);
   update_status(&ui_state);
-  update_vision(&ui_state);
   dashcam(&ui_state);
+  update_vision(&ui_state);
 
   if (ui_state.scene.started != started_prev) {
     started_prev = ui_state.scene.started;
