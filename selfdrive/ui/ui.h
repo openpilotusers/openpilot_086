@@ -107,8 +107,11 @@ typedef struct UIScene {
   bool brakePress;
   bool recording = false;
   bool touched = false;
-  bool map_on_top;
-  bool map_on_overlay;
+  bool map_on_top = false;
+  bool map_on_overlay = false;
+  bool map_is_running = false;
+  bool move_to_background = false;
+  bool navi_on_boot = false;
 
   float gpsAccuracyUblox;
   float altitudeUblox;
@@ -159,14 +162,11 @@ typedef struct UIScene {
   int homebtn_count = 0;
   bool forceGearD;
   bool comma_stock_ui;
-  bool map_is_running;
   bool apks_enabled;
   bool is_OpenpilotViewEnabled;
   bool driving_record;
-  bool move_to_background;
   float steer_actuator_delay;
   bool batt_less;
-  bool navi_on_boot;
   int cruise_gap;
   int dynamic_tr_mode;
   float dynamic_tr_value;

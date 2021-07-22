@@ -421,13 +421,6 @@ static void update_status(UIState *s) {
       s->scene.comma_stock_ui = Params().getBool("CommaStockUI");
       s->scene.apks_enabled = Params().getBool("OpkrApksEnable");
       s->scene.batt_less = Params().getBool("OpkrBattLess");
-
-      //opkr navi on boot
-      s->scene.map_on_top = false;
-      s->scene.map_on_overlay = false;
-      s->scene.map_is_running = false;
-      s->scene.move_to_background = false;
-      s->scene.navi_on_boot = false;
     } else {
       s->vipc_client->connected = false;
     }
